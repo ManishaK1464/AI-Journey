@@ -1,0 +1,60 @@
+KPI key performance indicator  is a measurable value 
+helps track progress toward strategic goals 
+total sales , average sales, number of items, avergae rating 
+summarize and high level 
+
+workbook whole 
+spreadsheet 17 billion cells F8  L4 
+range collecton of cells
+D4: J14 whole table through
+ view ribbon groups
+launch button
+
+fill handle to fill numbers give a pattern 1 2 3 4 and drag
+shift enter to go up of a cell
+tab or right left keys to , shift tab left
+
+ctrl+H find and replace
+autocorrect options in proofing excel options
+
+formulas 
+data tab -> text to columns delimited (,)
+
+Option 1: Double-click the fill handle (in Excel)
+Enter =C2*D2 in E2 (or your desired starting cell).
+
+Hover over the bottom-right corner of the cell (a little square will appear).
+
+Double-click it. 2 cells to le
+
+=E3*$H$1  used for reference somewhere like H1 is 0.07 not side by side multiply so
+
+relative cell reference and absolute cell references
+
+# **named ranges **
+
+
+''''''''
+formulas and functions
+''''''''''''
+changing formating general ___ currency , accounting
+
+**ATTRITION who are leaving the company**
+key performance indicator
+
+sum is like 1+2+3
+count is like total entries for sequence numbers its max value
+
+pivot table _- pivot table analyze _- and feild list
+
+extract data from pivot table to dashboard
+
+pivot analyze __ insert slicer is a filter
+
+based on filter lets say male female the values in pivot table also changes 
+
+active employees need to understand its like total - leaving attrition 
+
+attrition rate = attrition employees / total count
+
+average is whole number
