@@ -1,0 +1,38 @@
+31 30 29 28 checksum
+
+27 lstrsp
+
+26 25 0 0
+
+24 r = 0 w = 1 
+
+
+lstrsp true 1000 0000
+is write true 0000 1000 
+
+
+data 0 = 0x80 ! 0x00 = 0x80   1000 0000 ! 0000 0000 = 1000 0000 
+
+bip 8 = 1000 0000 & 0000 1111 = 0000 0000 ^ 0000 0010 ^ 0000 0000 ^ 0000 0000 = 0000 0010  = 0x02
+
+bip8 & 0xF0 = 0000 0010 & 1111 0000 = 0000 0000 >> 4 = 0000 0000
+
+bip8 & 0x0F = 0000 0010 & 0000 1111 = 0000 0010   = 0x02   ( 0000 0000 ^ 0000 0010 = 0000 0010 ) = bip4  
+
+uint8_t bip4 = calculateBIP4(packet->data[0], packet->data[1], packet->data[2], packet->data[3]);  = 0x02
+  packet->data[0] = (packet->data[0] & 0x0F) | (bip4 << 4);
+  
+   1000 0000 & 0000 1111 = 0000 0000 ! 0000 0010 << 4 = 0010 0000 
+
+   0000 0000 | 0010 0000 = 0010 0000 = 0x20 
+
+
+     packet->data[2] = (value >> 8) & 0xFF; stores upper 8 bits of value value is 16 bit so here as it is uint8_t the last 8 bits are stored 
+
+
+     **** channel. 
+     (uint32_t)0x000F << 16: Casts 0x000F to a 32-bit unsigned integer and shifts it left by 16 bits, placing it in the upper 16 bits (result: 0x000F0000).
+| 0x00AA: Combines with 0x00AA (lower 16 bits) using a bitwise OR.
+Result: fullChannel = 0x000F00AA.
+
+  
