@@ -1,0 +1,4 @@
+outData is just a pointer — it holds the address of your data (your array).
+It doesn’t hold the actual data itself.
+
+It just knows where the data lives in memory.
