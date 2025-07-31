@@ -2,3 +2,19 @@ outData is just a pointer — it holds the address of your data (your array).
 It doesn’t hold the actual data itself.
 
 It just knows where the data lives in memory.
+
+member initializer list
+msys2
+
+| Concept                       | Purpose                                           |
+| ----------------------------- | ------------------------------------------------- |
+| Initialization                | How objects and members are set up                |
+| OOP (classes, inheritance)    | Organizing code via types and hierarchies         |
+| Polymorphism / Virtual funcs  | Dynamic behavior via base pointers/references     |
+| Templates                     | Generic programming & compile-time polymorphism   |
+| Concepts (C++20)              | Constraints for safer template use                |
+| References vs Pointers        | Aliasing vs address-based access                  |
+| Operator Overloading          | Custom behavior using standard operators          |
+| Exceptions                    | Structured runtime error handling                 |
+| Smart Pointers & RAII         | Safe resource and memory management               |
+| Advanced Features (RTTI, TMP) | Type introspection and complex compile-time logic |

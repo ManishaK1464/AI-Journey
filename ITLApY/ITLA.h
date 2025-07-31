@@ -8,7 +8,7 @@
 class ITLA {
 public:
     // Constructor: allow passing the HardwareSerial (default Serial1 on Due)
-    ITLA(HardwareSerial &serial = Serial1);
+    ITLA(HardwareSerial &serial = Serial1); // &serial is a reference to avoid copying 
 
     // Initialize with optional debug flag. Returns true if module found.
     bool begin(bool verbose = false);
@@ -31,13 +31,16 @@ public:
     double getTemperature();
 
     // Read serial number (as string via AEA)
-    String readSerialNumber();
+    //String readSerialNumber();
+
+    // Read string from AEA register (e.g., SN)
+    String readAEAString(uint8_t reg);
 
     // Verbose debug output on Serial (USB)
     void setVerbose(bool on);
 
 private:
-    HardwareSerial &itlaSerial;
+    HardwareSerial &itlaSerial; // Reference to the serial port a permanent reference to avoid copying
     bool verbose;
 
     // Send a raw command frame; returns raw 32-bit response.

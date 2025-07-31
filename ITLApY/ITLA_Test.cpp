@@ -2,7 +2,10 @@
 #include <Arduino.h>
 #include "ITLA.h"
 
-ITLA itla(Serial1);
+ITLA itla(Serial1); // object for ITLA communication ITLA class itla object with Serial1 itla.any function define in ITLA.h
+// serial1 passing to ITLA class constructor as a parameter
+// when someone create an object of ITLA class, it will use Serial1 by default
+// inside ITLA class constructor, itlaSerial will be initialized with Serial1 serial to serial1
 
 void setup() {
     Serial.begin(115200);
@@ -17,7 +20,7 @@ void setup() {
     Serial.println("ITLA connected.");
 
     // Turn laser ON
-    itla.laserOn();
+  /*/  itla.laserOn();
     delay(500);
 
     // Set power to 10 dBm
@@ -36,9 +39,16 @@ void setup() {
     String sn = itla.readSerialNumber();
     Serial.print("Serial Number: "); Serial.println(sn);
 
+    */
+    // Reading mfgr not a optical setting so no need to turn laser on  SENA bit
+
+    uint16_t manuf = itla.readAEARegister(ITLA_REG_MANUF);
+    Serial.print("Manufacturer Register (0x02): 0x");
+    Serial.println(manuf, HEX);
+
     Serial.println("ITLA test complete.");
 }
 
 void loop() {
-    // Could poll status or do other tasks here...
+    .
 }

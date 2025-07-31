@@ -1,7 +1,7 @@
 #include "ITLA.h"
 
 // Constructor: use Serial1 by default
-ITLA::ITLA(HardwareSerial &serial) : itlaSerial(serial), verbose(false) { }
+ITLA::ITLA(HardwareSerial &serial) : itlaSerial(serial), verbose(false)// SO This representation here is member initializer list member variable{ }
 
 // Calculate BIP-4 checksum using lower nibble of data[0] and XOR logic
 uint8_t ITLA::calcBIP4(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3) {
@@ -210,7 +210,7 @@ double ITLA::getTemperature() {
     return (double)raw / 100.0;
 }
 
-String ITLA::readSerialNumber() {
+/*String ITLA::readSerialNumber() {
     uint8_t status;
     uint16_t lenVal = transact(ITLA_REG_SN, false, 0, status);
     if (status != 2) return "";
@@ -227,6 +227,40 @@ String ITLA::readSerialNumber() {
             s += c2;
         } else break;
     }
+    return s; */
+String ITLA::readAEAString(uint8_t reg) {
+    uint8_t status;
+    uint16_t lenVal = transact(reg, false, 0, status);
+    if (status != 2) {
+        if (verbose) {
+            Serial.print("Error reading AEA register 0x");
+            Serial.print(reg, HEX);
+            Serial.print(" length, status=0x");
+            Serial.println(status, HEX);
+        }
+        return "";
+    }
+    uint8_t strLen = lenVal & 0xFF;
+    String s = "";
+    for (int i = 0; i < (int)strLen; i += 2) {
+        uint16_t chunk = transact(ITLA_REG_EAR, false, 0, status);
+        if (status == 0) {
+            char c1 = (char)((chunk >> 8) & 0xFF);
+            char c2 = (char)(chunk & 0xFF);
+            if (c1 == 0 || i >= strLen) break;
+            s += c1;
+            if (c2 == 0 || i + 1 >= strLen) break;
+            s += c2;
+        } else {
+            if (verbose) {
+ вов                Serial.print("Error reading AEA chunk for reg 0x");
+                Serial.print(reg, HEX);
+                Serial.print(", status=0x");
+                Serial.println(status, HEX);
+            }
+            break;
+        }
+    }
     return s;
 }
 
@@ -234,4 +268,8 @@ uint8_t ITLA::getErrorCode() {
     uint8_t st;
     uint16_t val = transact(ITLA_REG_NOP, false, 0, st);
     return (uint8_t)(val & 0x0F);
+}
+// Set verbose mode
+void ITLA::setVerbose(bool on) {
+    verbose = on;
 }
