@@ -1,6 +1,6 @@
 #include "ITLA.h"
 
-// Constructor: use Serial1 by default
+// Constructor: use Serial1 by default // hardwareserial class is from arduino library here it has serial1 and others already defined
 ITLA::ITLA(HardwareSerial &serial) : itlaSerial(serial), verbose(false)// SO This representation here is member initializer list member variable{ }
 
 // Calculate BIP-4 checksum using lower nibble of data[0] and XOR logic
@@ -29,13 +29,13 @@ uint32_t ITLA::sendCommandFrame(uint32_t frame) {
     uint8_t data[4];
     formCommandPacket(data, command, value, writeFlag, 0); // lstRsp = 0
 
-    if (verbose) {
+    /*if (verbose) {
         Serial.print("Sending: ");
         for (int i = 0; i < 4; i++) {
             Serial.print(data[i], HEX); Serial.print(" ");
         }
         Serial.println();
-    }
+    }*/  //optionally print the command frame being sent
 
     itlaSerial.write(data, 4);
 
@@ -118,7 +118,39 @@ uint16_t ITLA::transact(uint8_t reg, bool writeFlag, uint16_t data, uint8_t &sta
     return respData;
 }
 
+
+
 bool ITLA::begin(bool dbg) {
+    verbose = dbg;
+    const long bauds[] = {4800, 9600, 19200, 38400, 57600, 115200};
+    for (auto baud : bauds) {
+        itlaSerial.begin(baud);
+        delay(50);
+        if (verbose) {
+            Serial.print("Trying baud "); Serial.println(baud);
+        }
+        uint8_t status;
+        uint16_t dummy = transact(ITLA_REG_NOP, false, 0, status);
+        // Check status, not the returned value
+        if (status == 0) {
+            if (verbose) {
+                Serial.print("Device responded at ");
+                Serial.print(baud);
+                Serial.println(" baud");
+            }
+            return true;
+        }
+    }
+    // None responded—default back to 9600
+    itlaSerial.begin(9600);
+    if (verbose) {
+        Serial.println("Failed auto-baud, defaulting to 9600");
+    }
+    return false;
+}
+
+// additional check for baud rate detection in pdf its 9600 given as default 
+/*bool ITLA::begin(bool dbg) {
     verbose = dbg;
     const long bauds[] = {4800, 9600, 19200, 38400, 57600, 115200};
     for (auto baud : bauds) {
@@ -139,7 +171,7 @@ bool ITLA::begin(bool dbg) {
     itlaSerial.begin(9600);
     if (verbose) Serial.println("Failed auto-baud, defaulting to 9600");
     return false;
-}
+} */
 
 uint16_t ITLA::readRegister(uint8_t reg) {
     uint8_t status;
@@ -228,38 +260,56 @@ double ITLA::getTemperature() {
         } else break;
     }
     return s; */
-String ITLA::readAEAString(uint8_t reg) {
+/*String ITLA::readAEAString(uint8_t reg) {
     uint8_t status;
-    uint16_t lenVal = transact(reg, false, 0, status);
-    if (status != 2) {
+    uint16_t lenVal = transact(reg,false,0,status);
+    if (status != 2) return "";
+    uint8_t strLen = lenVal & 0xFF;
+    String s;
+    for (int i = 0; i < strLen; i += 2) {
+        uint16_t chunk = transact(ITLA_REG_EAR,false,0,status);
+        if (status != 0) break;
+        char c1 = (chunk>>8)&0xFF;
+        char c2 = chunk&0xFF;
+        if (c1==0 || i >= strLen) break;
+        s += c1;
+        if (c2==0 || i+1>=strLen) break;
+        s += c2;
+    }
+    return s;
+}*/
+String ITLA::readAEAString(uint8_t reg) {
+    uint8_t st;
+    // 1) fetch length (status==2)
+    uint16_t lenVal = transact(reg, false, 0, st);
+    if (st != 2) {
         if (verbose) {
-            Serial.print("Error reading AEA register 0x");
-            Serial.print(reg, HEX);
-            Serial.print(" length, status=0x");
-            Serial.println(status, HEX);
+            Serial.print("AEA length read error, status=0x");
+            Serial.println(st, HEX);
         }
         return "";
     }
     uint8_t strLen = lenVal & 0xFF;
-    String s = "";
-    for (int i = 0; i < (int)strLen; i += 2) {
-        uint16_t chunk = transact(ITLA_REG_EAR, false, 0, status);
-        if (status == 0) {
-            char c1 = (char)((chunk >> 8) & 0xFF);
-            char c2 = (char)(chunk & 0xFF);
-            if (c1 == 0 || i >= strLen) break;
-            s += c1;
-            if (c2 == 0 || i + 1 >= strLen) break;
-            s += c2;
-        } else {
+
+    // 2) read in 2-byte chunks
+    String s;
+    for (int i = 0; i < strLen; i += 2) {
+        uint16_t chunk = transact(ITLA_REG_EAR, false, 0, st);
+        if (st != 0) {
             if (verbose) {
- вов                Serial.print("Error reading AEA chunk for reg 0x");
-                Serial.print(reg, HEX);
+                Serial.print("AEA chunk read error at byte ");
+                Serial.print(i);
                 Serial.print(", status=0x");
-                Serial.println(status, HEX);
+                Serial.println(st, HEX);
             }
             break;
         }
+        char c1 = (chunk >> 8) & 0xFF;
+        char c2 =  chunk       & 0xFF;
+        if (c1 == '\0') break;
+        s += c1;
+        if (i + 1 >= strLen || c2 == '\0') break;
+        s += c2;
     }
     return s;
 }

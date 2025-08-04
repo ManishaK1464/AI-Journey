@@ -18,3 +18,12 @@ msys2
 | Exceptions                    | Structured runtime error handling                 |
 | Smart Pointers & RAII         | Safe resource and memory management               |
 | Advanced Features (RTTI, TMP) | Type introspection and complex compile-time logic |
+
+
+reference c++
+int age = 27;
+int &yourAge = age ;
+
+age = 30 
+print age 
+print yourage same 

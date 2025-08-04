@@ -8,7 +8,7 @@
 class ITLA {
 public:
     // Constructor: allow passing the HardwareSerial (default Serial1 on Due)
-    ITLA(HardwareSerial &serial = Serial1); // &serial is a reference to avoid copying 
+    ITLA(HardwareSerial &serial = Serial1); // &serial is a reference to avoid copying // ITLA(int x) its a constructor that initializes the ITLA object with a reference to a HardwareSerial object.
 
     // Initialize with optional debug flag. Returns true if module found.
     bool begin(bool verbose = false);
@@ -45,14 +45,19 @@ private:
 
     // Send a raw command frame; returns raw 32-bit response.
     uint32_t sendCommandFrame(uint32_t frame);
-
     // Build and send a command, then parse response.
     // writeFlag=1 for write, 0 for read. reg=8-bit, data=16-bit.
     // Returns the 16-bit data field of response; status out by reference.
     uint16_t transact(uint8_t reg, bool writeFlag, uint16_t data, uint8_t &status);
 
     // Compute BIP-4 checksum (for 4-byte array).
-    uint8_t calcBIP4(uint8_t *data);
+    uint8_t calcBIP4(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3);
+
+    void formCommandPacket(uint8_t* outData,
+                       uint8_t command,
+                       uint16_t value,
+                       uint8_t isWrite,
+                       uint8_t lstRsp);
 
     // Read NOP register to get error field (bits 3:0).
     uint8_t getErrorCode();
