@@ -1,4 +1,5 @@
 // File: ITLA.h
+// is a interface 
 #ifndef ITLA_H
 #define ITLA_H
 
@@ -7,17 +8,20 @@
 
 class ITLA {
 public:
+// hardware serial interface ITLA laser(serial1)
     // Constructor: allow passing the HardwareSerial (default Serial1 on Due)
     ITLA(HardwareSerial &serial = Serial1); // &serial is a reference to avoid copying // ITLA(int x) its a constructor that initializes the ITLA object with a reference to a HardwareSerial object.
 
-    // Initialize with optional debug flag. Returns true if module found.
+    // Initialize with optional debug flag. Returns true if module found. initialize communication with the ITLA module
+    // Tries various baud rates until it gets a response.
+    // If verbose is true, prints debug info to Serial.
     bool begin(bool verbose = false);
 
     // Read/write 16-bit register (returns data or throws on error)
     uint16_t readRegister(uint8_t reg);
     void writeRegister(uint8_t reg, uint16_t value);
 
-    // Laser control
+    // Laser control SENA bit
     void laserOn();      // Turn laser output on (sets SENA bit)
     void laserOff();     // Turn laser output off (clears SENA)
 

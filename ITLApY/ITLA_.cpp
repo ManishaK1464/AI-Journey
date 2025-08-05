@@ -1,7 +1,10 @@
 #include "ITLA.h"
 
 // Constructor: use Serial1 by default // hardwareserial class is from arduino library here it has serial1 and others already defined
-ITLA::ITLA(HardwareSerial &serial) : itlaSerial(serial), verbose(false)// SO This representation here is member initializer list member variable{ }
+ITLA::ITLA(HardwareSerial &serial) : itlaSerial(serial), verbose(false)
+{
+    // empty
+}// SO This representation here is member initializer list member variable{ }
 
 // Calculate BIP-4 checksum using lower nibble of data[0] and XOR logic
 uint8_t ITLA::calcBIP4(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3) {
@@ -81,12 +84,12 @@ uint32_t ITLA::sendCommandFrame(uint32_t frame) {
     return resp;
 }
 
-// Perform transaction: send command, get parsed data + status
+// Perform transaction: send command, get parsed data + status wrapper for send and receive
 uint16_t ITLA::transact(uint8_t reg, bool writeFlag, uint16_t data, uint8_t &status) {
     uint32_t frame = 0;
-    frame |= (1UL << 26);                    // fixed bit
-    if (writeFlag) frame |= (1UL << 24);     // R/W bit
-    frame |= ((uint32_t)reg << 16);          // register
+    frame |= (1UL << 26);                    // fixed bit 26 to 1 ,1 unsigned long  32 bit 00000100000000000000000000000000 0x04000000
+    if (writeFlag) frame |= (1UL << 24);     // R/W bit 24 set to 1 for write, 0 for read
+    frame |= ((uint32_t)reg << 16);          // register  0x12 << 16 = 0x00120000
     frame |= data;                           // data
 
     uint32_t raw = sendCommandFrame(frame);
@@ -103,7 +106,7 @@ uint16_t ITLA::transact(uint8_t reg, bool writeFlag, uint16_t data, uint8_t &sta
     }
 
     uint32_t payload = raw & 0x03FFFFFFUL;
-    status = (payload >> 24) & 0x03;
+    status = (payload >> 24) & 0x03;  // status bits 25:24
     uint8_t respReg = (payload >> 16) & 0xFF;
     uint16_t respData = payload & 0xFFFF;
 
@@ -119,16 +122,21 @@ uint16_t ITLA::transact(uint8_t reg, bool writeFlag, uint16_t data, uint8_t &sta
 }
 
 
-
+//verbose mode is used to print debug information dbg = true enables verbose mode
 bool ITLA::begin(bool dbg) {
     verbose = dbg;
     const long bauds[] = {4800, 9600, 19200, 38400, 57600, 115200};
-    for (auto baud : bauds) {
+    const size_t nBauds = sizeof(bauds) / sizeof(bauds[0]);
+
+    for (size_t i = 0; i < nBauds; ++i) {
+        long baud = bauds[i];
         itlaSerial.begin(baud);
         delay(50);
         if (verbose) {
-            Serial.print("Trying baud "); Serial.println(baud);
+            Serial.print("Trying baud ");
+            Serial.println(baud);
         }
+
         uint8_t status;
         uint16_t dummy = transact(ITLA_REG_NOP, false, 0, status);
         // Check status, not the returned value
@@ -141,6 +149,7 @@ bool ITLA::begin(bool dbg) {
             return true;
         }
     }
+
     // None responded—default back to 9600
     itlaSerial.begin(9600);
     if (verbose) {
@@ -148,6 +157,7 @@ bool ITLA::begin(bool dbg) {
     }
     return false;
 }
+
 
 // additional check for baud rate detection in pdf its 9600 given as default 
 /*bool ITLA::begin(bool dbg) {

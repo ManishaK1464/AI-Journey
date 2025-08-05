@@ -2,6 +2,8 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "string": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "compare": "cpp",
+        "cstdint": "cpp"
     }
 }

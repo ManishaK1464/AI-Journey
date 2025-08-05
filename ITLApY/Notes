@@ -27,3 +27,36 @@ int &yourAge = age ;
 age = 30 
 print age 
 print yourage same 
+
+!= set a bit 
+
+bool ITLA::begin(bool dbg) {
+    verbose = dbg;
+    const long bauds[] = {4800, 9600, 19200, 38400, 57600, 115200};
+    /*for (int i = 0; i < sizeof(bauds)/sizeof(bauds[0]); i++) {
+    long baud = bauds[i];*/
+    for (auto baud : bauds) {
+        itlaSerial.begin(baud);
+        delay(50);
+        if (verbose) {
+            Serial.print("Trying baud "); Serial.println(baud);
+        }
+        uint8_t status;
+        uint16_t dummy = transact(ITLA_REG_NOP, false, 0, status);
+        // Check status, not the returned value
+        if (status == 0) {
+            if (verbose) {
+                Serial.print("Device responded at ");
+                Serial.print(baud);
+                Serial.println(" baud");
+            }
+            return true;
+        }
+    }
+    // None responded—default back to 9600
+    itlaSerial.begin(9600);
+    if (verbose) {
+        Serial.println("Failed auto-baud, defaulting to 9600");
+    }
+    return false;
+}

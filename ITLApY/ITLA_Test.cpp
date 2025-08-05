@@ -42,13 +42,13 @@ void setup() {
     */
     // Reading mfgr not a optical setting so no need to turn laser on  SENA bit
 
-    String manuf = itla.readAEARegister(ITLA_REG_MANUF);
+    String manuf = itla.readAEAString(ITLA_REG_MANUF);
     Serial.print("Manufacturer Register (0x02): 0x");
-    Serial.println(manuf, HEX);
+    Serial.println(manuf);
 
     Serial.println("ITLA test complete.");
 }
 
 void loop() {
-    .
+    
 }
