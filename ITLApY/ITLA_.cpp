@@ -1,10 +1,9 @@
 #include "ITLA.h"
-
-// Constructor: use Serial1 by default // hardwareserial class is from arduino library here it has serial1 and others already defined
+// Constructor: use Serial1 by default
 ITLA::ITLA(HardwareSerial &serial) : itlaSerial(serial), verbose(false)
 {
-    // empty
-}// SO This representation here is member initializer list member variable{ }
+    
+}
 
 // Calculate BIP-4 checksum using lower nibble of data[0] and XOR logic
 uint8_t ITLA::calcBIP4(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3) {
@@ -247,6 +246,19 @@ void ITLA::setFrequencyTHz(double freqTHz) {
     writeRegister(ITLA_REG_CHANNEL, channelLS);
 }
 
+double ITLA::getFrequencyLF() {
+    uint16_t lf1 = readRegister(ITLA_REG_LF1); // THz
+    uint16_t lf2 = readRegister(ITLA_REG_LF2); // GHz*10
+    uint16_t lf3 = readRegister(ITLA_REG_LF3); // MHz
+
+    double freqGHz = lf1 * 1000.0
+                   + lf2 * 0.1
+                   + lf3 * 0.001;
+
+    return freqGHz / 1000.0; // THz
+}
+
+
 double ITLA::getTemperature() {
     int16_t raw = (int16_t)readRegister(ITLA_REG_TEMP);
     return (double)raw / 100.0;
@@ -332,4 +344,34 @@ uint8_t ITLA::getErrorCode() {
 // Set verbose mode
 void ITLA::setVerbose(bool on) {
     verbose = on;
+}
+
+
+// need to confirm 
+double ITLA::getPower_dBm() {
+    int16_t raw = (int16_t)readRegister(ITLA_REG_POWER);
+    return raw / 100.0;
+}
+
+double ITLA::getFrequencyTHz() {
+    uint16_t channelLS = readRegister(ITLA_REG_CHANNEL);
+    uint16_t channelMS = readRegister(ITLA_REG_CHANNEL + 1);
+    uint32_t channel = ((uint32_t)channelMS << 16) | channelLS;
+
+    uint16_t grid_i = readRegister(ITLA_REG_GRID);
+    uint16_t grid_f = readRegister(ITLA_REG_GRID2);
+    double gridGHz = grid_i*0.1 + grid_f*0.001;
+
+    uint16_t fcf1 = readRegister(ITLA_REG_FCF1);
+    uint16_t fcf2 = readRegister(ITLA_REG_FCF2);
+    uint16_t fcf3 = readRegister(ITLA_REG_FCF3);
+    double firstGHz = fcf1*1000.0 + fcf2*0.1 + fcf3*0.001;
+
+    double freqGHz = firstGHz + (channel-1)*gridGHz;
+    return freqGHz / 1000.0; // THz
+}
+
+bool ITLA::isLaserOn() {
+    uint16_t val = readRegister(ITLA_REG_RESETA);
+    return (val & 0x08) != 0;
 }

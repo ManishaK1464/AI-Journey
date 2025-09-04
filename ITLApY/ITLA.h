@@ -42,8 +42,17 @@ public:
 
     // Verbose debug output on Serial (USB)
     void setVerbose(bool on);
+    // ITLA.h additions
+
+    
+double getPower_dBm();        // returns current power setpoint
+double getFrequencyTHz();     // returns current wavelength
+bool isLaserOn();             // returns true if laser is on
+double getFrequencyLF();   // returns actual laser frequency from LF1/2/3
+
 
 private:
+// properties and methods and member functions
     HardwareSerial &itlaSerial; // Reference to the serial port a permanent reference to avoid copying
     bool verbose;
 

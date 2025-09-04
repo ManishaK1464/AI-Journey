@@ -41,7 +41,7 @@ void setup() {
 
     */
     // Reading mfgr not a optical setting so no need to turn laser on  SENA bit
-
+// I can access ITLA class laser object with laser.properties and methods
     String manuf = itla.readAEAString(ITLA_REG_MANUF);
     Serial.print("Manufacturer Register (0x02): 0x");
     Serial.println(manuf);

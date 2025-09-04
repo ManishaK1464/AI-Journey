@@ -1,0 +1,2 @@
+menuIndex = (menuIndex - 1 + 3) % 3; wraparound function basically 
+it makes like if you are at position 0 and you press up button it will go to last position
