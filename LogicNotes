@@ -1,2 +1,7 @@
 menuIndex = (menuIndex - 1 + 3) % 3; wraparound function basically 
-it makes like if you are at position 0 and you press up button it will go to last position
+When you write a frequency/power value, sometimes you store it in EEPROM if you want the laser to remember this value across power cycles.
+it makes like if you are at position 0 and you press up button it will go to last position#
+
+
+
+set the power before sending a channel selection command.

@@ -229,21 +229,29 @@ void ITLA::setPower_dBm(double dBm) {
 }
 
 void ITLA::setFrequencyTHz(double freqTHz) {
+    // Read grid spacing
     uint16_t grid_i = readRegister(ITLA_REG_GRID);
     uint16_t grid_f = readRegister(ITLA_REG_GRID2);
     double gridGHz = grid_i * 0.1 + grid_f * 0.001;
 
+    // Read first channel frequency
     uint16_t fcf1 = readRegister(ITLA_REG_FCF1);
     uint16_t fcf2 = readRegister(ITLA_REG_FCF2);
     uint16_t fcf3 = readRegister(ITLA_REG_FCF3);
     double firstGHz = fcf1 * 1000.0 + fcf2 * 0.1 + fcf3 * 0.001;
+
+    // Compute channel number
     double targetGHz = freqTHz * 1000.0;
     double channelDouble = (targetGHz - firstGHz) / gridGHz + 1.0;
     uint32_t channel = (uint32_t)lround(channelDouble);
+
+    // Split into high/low 16 bits
     uint16_t channelLS = channel & 0xFFFF;
     uint16_t channelMS = (channel >> 16) & 0xFFFF;
-    writeRegister(ITLA_REG_CHANNEL + 1, channelMS);
-    writeRegister(ITLA_REG_CHANNEL, channelLS);
+
+    // Write high word first, then low word
+    writeRegister(ITLA_REG_CHANNELH, channelMS);  // 0x65
+    writeRegister(ITLA_REG_CHANNEL, channelLS);   // 0x30
 }
 
 double ITLA::getFrequencyLF() {
@@ -354,20 +362,20 @@ double ITLA::getPower_dBm() {
 }
 
 double ITLA::getFrequencyTHz() {
-    uint16_t channelLS = readRegister(ITLA_REG_CHANNEL);
-    uint16_t channelMS = readRegister(ITLA_REG_CHANNEL + 1);
+    uint16_t channelLS = readRegister(ITLA_REG_CHANNEL);       // 0x30
+    uint16_t channelMS = readRegister(ITLA_REG_CHANNELH);      // 0x65
     uint32_t channel = ((uint32_t)channelMS << 16) | channelLS;
 
     uint16_t grid_i = readRegister(ITLA_REG_GRID);
     uint16_t grid_f = readRegister(ITLA_REG_GRID2);
-    double gridGHz = grid_i*0.1 + grid_f*0.001;
+    double gridGHz = grid_i * 0.1 + grid_f * 0.001;
 
     uint16_t fcf1 = readRegister(ITLA_REG_FCF1);
     uint16_t fcf2 = readRegister(ITLA_REG_FCF2);
     uint16_t fcf3 = readRegister(ITLA_REG_FCF3);
     double firstGHz = fcf1*1000.0 + fcf2*0.1 + fcf3*0.001;
 
-    double freqGHz = firstGHz + (channel-1)*gridGHz;
+    double freqGHz = firstGHz + (channel - 1) * gridGHz;
     return freqGHz / 1000.0; // THz
 }
 

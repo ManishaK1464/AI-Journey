@@ -91,10 +91,10 @@
 #endif // ITLA_REGISTERS_H
 
 
-/* 63 64 65 E F 10 #define ITLA_REG_EAC        0x0E
+#define ITLA_REG_EAC        0x0E
 #define ITLA_REG_EA_EXT     0x0F
 #define ITLA_REG_EAR_EXT    0x10
 #define ITLA_REG_FFREQTH2   0x63
 #define ITLA_REG_WFREQTH2   0x64
 #define ITLA_REG_CHANNELH   0x65 
-*/
+
